@@ -1,7 +1,7 @@
 /* 
-package justSessions presents a configuration structure you can use to open and close a database connection to redis. It provides functions for basic session management.
+package justRedis presents a configuration structure you can use to open and close a database connection to redis, and turn redis commands into go functions accessible by everyone.
 */
-package justSessions
+package justRedis
 
 import (
 
@@ -13,18 +13,18 @@ import (
 
 
 // DBInst is a configuration structure for SQL. The auth will be zero'd once its opened.
-type SessionsConfig struct {
+type RedisConfig struct {
 	db *redis.Client
 }
 
 
 // The only unique error for this package so far
 var (
- ErrStmtConflict = errors.New("justSQL: Tried to create two statements of the same name")
+ ErrStmtConflict = errors.New("justRedis: Tried to create two statements of the same name")
 )
 
 // Open opens the database connection, and makes the maps of precompiled statements
-func (d *SessionsConfig) Open() error {
+func (d *RedisConfig) Open() error {
 	// TODO set logger
 	d.db = redis.NewClient(&redis.Options{
     Addr:     "localhost:6379",
@@ -33,19 +33,19 @@ func (d *SessionsConfig) Open() error {
 	})
 	pong, err := d.db.Ping().Result()
 	if err != nil {
-		log.Errorf("Sessions, Open failed: redis ping: %v, err: %v", pong, err)
+		log.Errorf("justRedis, Open failed: redis ping: %v, err: %v", pong, err)
 		panic("Panic'ed due to redis")
 	}
-	log.Enterf("Sessions, Open: Redis ping: %v", pong)
+	log.Enterf("justRedis, Open: Redis ping: %v", pong)
 
 	return nil
 }
 
 // Close closes the database
-func (d *SessionsConfig) Close() error {
+func (d *RedisConfig) Close() error {
 	err := d.db.Close()
 	if (err != nil) {
-		log.Errorf("Sessions, Close: Error closing: %v", err)
+		log.Errorf("justRedis, Close: Error closing: %v", err)
 		return err
 	}
 	return nil
